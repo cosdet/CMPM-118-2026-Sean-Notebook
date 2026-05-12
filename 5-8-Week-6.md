@@ -1,4 +1,4 @@
-# Week 3
+# Week 6
 ### What I Did
 
 Week 6 means I should make some progress on my mid-quarter goal done. After a few weeks of debugging code on the `dbittman-e1000-driver` branch, I'm now trying, with the sage advice of Surendra, to just cherry-pick features from the branch off of a clean slate. So then, at least, I'm only getting errors from features that I'm trying to implement. I'm really thankful I wrote a detailed notebook entry during Week 3, because I kind of got lost in the sauce and totally forgot what research I had already done! So I'm going to try and do that again with this notebook:
@@ -171,6 +171,25 @@ struct termios {
 ```
 </details>
 
+I also read the paper on CHERI this week. Here are my notes on that:
+
+**Summary**: CHERI, Capability Hardware Enhanced RISC Instructions, propose a solution to the age-old quandry that languages like C/C++ have regarding memory safety. As the name starts off with, CHERI introduces a new type of data called a architectural capability that allows for the protection memory addresses. It does this by having each capability contain metadata in its 128 bit space (on 64-bit platforms) that shows the memory bounds, object type, permissions, and validity of the capability. These capabilities are held in capability registers and can then be operated on using capability-aware instructions. An important feature of these capabilities is the architectural rule of capability monotonicity, which only allows permissions to be taken away and not given, allowing for only the firmware to be the true be-all end-all for permissions on startup, while everything else (i.e. bootloader, hypervisor, OS, and applications) are all derivitive from those permissions.
+
+**Major Contributions**: The concept of capabilities in the way that CHERI has implmented them is a novel approach at attempting to implement memory-safety to memory-unsafe programming langauges. They have taken this approach and applied it to multiple different pieces of previously designed software to improve their memory-safety. This includes CLANG/LLVM/LLD, GDB, the FreeRTOS operating system , Google's Hafnium hypervisor, the FreeBSD operating system, OpenSSH, Apple's WebKit, and PostgreSQL.
+
+**Strengths/Weaknesses**: The obvious strength with this approach is that the architectural capabilities ensure that code and pointers are valid and are not easily susceptible to hacking (thanks to the 1-bit out of band validity tag that is handled by the MMU). There are however a few weaknesses with this approach. One that stood out to me a lot was the difficulty in portability. Since CHERI modifies the ISA to extend multiple architectures, it makes CHERI, very architecture dependent, having to be re-evaluated whenever it needs to be ported to a new architecture. This is, however, the price to pay for hardware supported security. It was also stated in Section 6.3 that due to the growth in pointer size, some applications may have to change the way they utilize allocations.
+
+**Questions**: Some questions I had that might be interesting to discuss are the following:
+* How does a language like Rust solve what CHERI is trying to implment in memory-unsafe languages like C/C++?
+* What are the benefits to having a hardware/architecture dependent solution like CHERI?
+* If CHERI extends several architectures to fit the architecture capability metadata, how does this affect memory size?
+* Are there any performance benefits/detriments using non-capability-aware code/pointers with CHERI?
+
 ### Troubles
 
+I've been running into trouble with running `femto` in the command line as it seems, no matter what I do, I keep getting the same error.  I think this may be because my changes in `libc`, which is where `femto` seems to be failing, aren't being reflected in the toolchain and thus the toolchain needs to be rebuilt. So, maybe I'll try that next week.
+
 ### Goals and Aspirations
+
+Try running `femto` after building the toolchain anew.
+
